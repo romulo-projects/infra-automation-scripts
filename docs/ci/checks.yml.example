@@ -1,0 +1,26 @@
+name: Verificar scripts
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verificar sintaxe Bash
+        run: |
+          for script in *.sh tests/*.sh; do
+            bash -n "$script"
+          done
+      - name: Testar certificados sem rede
+        run: bash tests/certificados_test.sh
+      - name: Testar GitLab sem publicacao
+        shell: pwsh
+        run: |
+          ./tests/gitlab_test.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./tests/gitlab_api_test.ps1
